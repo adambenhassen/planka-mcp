@@ -8,10 +8,11 @@ import {
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
-import { request as undiciRequest } from "undici";
+import { request as undiciRequest, FormData } from "undici";
 
 // Import tool definitions
 import { getEnabledTools, toolCounts, GroupedToolDefinition } from "./tools/index.js";
+import { buildUploadForm } from "./upload.js";
 
 // ----- Configuration -----
 const PLANKA_BASE_URL = process.env.PLANKA_BASE_URL || "http://localhost:3000";
@@ -193,10 +194,17 @@ async function executeGroupedApiCall(
     }
 
     // Handle request body
-    let body: string | undefined = undefined;
+    let body: string | FormData | undefined = undefined;
     if (["POST", "PUT", "PATCH"].includes(methodUpper) && input?.data !== undefined) {
-      headers["Content-Type"] = "application/json";
-      body = JSON.stringify(input.data);
+      if (operation.upload) {
+        // Multipart upload. undici derives the boundary + Content-Type from FormData,
+        // so we must NOT set Content-Type ourselves.
+        const kind = groupedDef.name === "attachments" ? "attachment" : "background";
+        body = await buildUploadForm(kind, input.data);
+      } else {
+        headers["Content-Type"] = "application/json";
+        body = JSON.stringify(input.data);
+      }
     }
 
     let res;
