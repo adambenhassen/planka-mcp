@@ -43,6 +43,13 @@ describe("resolveBytes — base64", () => {
     await assert.rejects(() => resolveBytes({ base64: big }), /too large/i);
   });
 
+  it("rejects a non-base64 data: URI (missing ';base64')", async () => {
+    await assert.rejects(
+      () => resolveBytes({ base64: "data:image/png,rawnotbase64" }),
+      /;base64/
+    );
+  });
+
   it("rejects base64 that decodes to zero bytes", async () => {
     await assert.rejects(() => resolveBytes({ base64: "@@@@" }), /0 bytes/);
   });
@@ -195,5 +202,11 @@ describe("Schema documentation for image flows", () => {
     const t = coreTools.find(t => t.name === "cards")!;
     const desc = t.inputSchema.properties.data.description as string;
     assert.match(desc, /coverAttachmentId/);
+  });
+
+  it("documents backgroundImageId on projects update data", () => {
+    const t = coreTools.find(t => t.name === "projects")!;
+    const desc = t.inputSchema.properties.data.description as string;
+    assert.match(desc, /backgroundImageId/);
   });
 });

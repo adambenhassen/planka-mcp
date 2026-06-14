@@ -118,7 +118,8 @@ async function executeGroupedApiCall(
   overridePath?: string,
   allowCustomFieldDollarFallback = true,
   retryAttempt = 0,
-  unauthorizedRetried = false
+  unauthorizedRetried = false,
+  prebuiltBody?: string | FormData
 ): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
     const action = input?.action;
@@ -197,11 +198,14 @@ async function executeGroupedApiCall(
     let body: string | FormData | undefined = undefined;
     if (["POST", "PUT", "PATCH"].includes(methodUpper) && input?.data !== undefined) {
       if (operation.upload) {
-        // Multipart upload. undici derives the boundary + Content-Type from FormData,
-        // so we must NOT set Content-Type ourselves.
+        // Multipart upload. Build the FormData once and reuse it across retries
+        // (prebuiltBody) so a url-sourced image is fetched a single time, not
+        // re-downloaded on every attempt. undici derives the boundary +
+        // Content-Type from FormData, so we must NOT set Content-Type ourselves.
         const kind = groupedDef.name === "attachments" ? "attachment" : "background";
-        body = await buildUploadForm(kind, input.data);
+        body = prebuiltBody ?? (await buildUploadForm(kind, input.data));
       } else {
+        // JSON is rebuilt each call (cheap, no network), keeping Content-Type correct.
         headers["Content-Type"] = "application/json";
         body = JSON.stringify(input.data);
       }
@@ -223,7 +227,8 @@ async function executeGroupedApiCall(
           overridePath,
           allowCustomFieldDollarFallback,
           retryAttempt + 1,
-          unauthorizedRetried
+          unauthorizedRetried,
+          body
         );
       }
       throw requestError;
@@ -258,7 +263,8 @@ async function executeGroupedApiCall(
           overridePath,
           allowCustomFieldDollarFallback,
           retryAttempt,
-          true
+          true,
+          body
         );
       }
 
@@ -285,7 +291,8 @@ async function executeGroupedApiCall(
             fallbackPath,
             false,
             retryAttempt,
-            unauthorizedRetried
+            unauthorizedRetried,
+            body
           );
         }
       }
@@ -302,7 +309,8 @@ async function executeGroupedApiCall(
           overridePath,
           allowCustomFieldDollarFallback,
           retryAttempt + 1,
-          unauthorizedRetried
+          unauthorizedRetried,
+          body
         );
       }
 

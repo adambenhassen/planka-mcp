@@ -113,7 +113,7 @@ export const projectsTool: GroupedToolDefinition = {
         requiredFor: ["get", "update", "delete"],
       },
       data: {
-        description: "Project data: { name: string, description?: string, backgroundType?: 'gradient'|'image', backgroundGradient?: string }",
+        description: "Project data: { name: string, description?: string, backgroundType?: 'gradient'|'image', backgroundGradient?: string, backgroundImageId?: string (id from backgroundImages.upload; required with backgroundType:'image'; null to clear) }",
         requiredFor: ["create", "update"],
       },
     }

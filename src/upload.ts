@@ -1,4 +1,4 @@
-import { request as undiciRequest } from "undici";
+import { request as undiciRequest, FormData } from "undici";
 import { basename } from "node:path";
 
 /** Max decoded size for the base64 fallback (~1 MB). base64 args are LLM-emitted and expensive. */
@@ -6,7 +6,11 @@ export const MAX_BASE64_BYTES = 1 * 1024 * 1024;
 /** Max size we will download from a url, so a bad link can't pull an unbounded blob into memory. */
 export const MAX_URL_DOWNLOAD_BYTES = 10 * 1024 * 1024;
 
-/** Only fetch over http(s); blocks file:, data:, gopher:, etc. (cheap SSRF guard). */
+/**
+ * Scheme allowlist: only fetch over http(s), blocking file:, data:, gopher:, etc.
+ * Note: this does NOT block internal/private hosts (e.g. 169.254.169.254, localhost) —
+ * it is not full SSRF protection. The trusted source here is our own object store.
+ */
 const ALLOWED_PROTOCOLS = new Set(["http:", "https:"]);
 
 export interface UploadData {
