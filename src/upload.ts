@@ -41,6 +41,24 @@ export async function resolveBytes(data: UploadData): Promise<ResolvedBytes> {
 }
 
 async function fetchUrlBytes(url: string, name?: string): Promise<ResolvedBytes> {
-  // placeholder — implemented in Task 3
-  throw new Error("not implemented");
+  const res = await undiciRequest(url);
+  if (res.statusCode < 200 || res.statusCode >= 300) {
+    await res.body.dump();
+    throw new Error(`Failed to fetch image from url: HTTP ${res.statusCode}`);
+  }
+
+  const declared = Number(res.headers["content-length"]);
+  if (Number.isFinite(declared) && declared > MAX_URL_DOWNLOAD_BYTES) {
+    await res.body.dump();
+    throw new Error(`Image at url too large (${declared} bytes > ${MAX_URL_DOWNLOAD_BYTES}).`);
+  }
+
+  const bytes = Buffer.from(await res.body.arrayBuffer());
+  if (bytes.byteLength > MAX_URL_DOWNLOAD_BYTES) {
+    throw new Error(`Image at url too large (${bytes.byteLength} bytes > ${MAX_URL_DOWNLOAD_BYTES}).`);
+  }
+
+  const contentType = (res.headers["content-type"] as string) || "application/octet-stream";
+  const filename = name || basename(new URL(url).pathname) || "upload";
+  return { bytes, filename, contentType };
 }

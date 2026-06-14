@@ -5,7 +5,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { optionalTools } from "../dist/tools/index.js";
-import { resolveBytes, MAX_BASE64_BYTES } from "../dist/upload.js";
+import { resolveBytes, MAX_BASE64_BYTES, MAX_URL_DOWNLOAD_BYTES } from "../dist/upload.js";
+import { MockAgent, setGlobalDispatcher } from "undici";
 
 describe("Upload operation flags", () => {
   it("flags attachments.create and backgroundImages.upload as uploads", () => {
@@ -32,5 +33,44 @@ describe("resolveBytes — base64", () => {
 
   it("rejects when neither url nor base64 is provided", async () => {
     await assert.rejects(() => resolveBytes({}), /url.*base64/i);
+  });
+});
+
+describe("resolveBytes — url", () => {
+  it("fetches bytes from a url and derives filename + content type", async () => {
+    const agent = new MockAgent();
+    agent.disableNetConnect();
+    setGlobalDispatcher(agent);
+    agent.get("http://store.test")
+      .intercept({ path: "/img/cat.png", method: "GET" })
+      .reply(200, Buffer.from("PNGDATA"), { headers: { "content-type": "image/png" } });
+
+    const out = await resolveBytes({ url: "http://store.test/img/cat.png" });
+    assert.strictEqual(out.bytes.toString(), "PNGDATA");
+    assert.strictEqual(out.filename, "cat.png");
+    assert.strictEqual(out.contentType, "image/png");
+    await agent.close();
+  });
+
+  it("rejects a non-2xx url response", async () => {
+    const agent = new MockAgent();
+    agent.disableNetConnect();
+    setGlobalDispatcher(agent);
+    agent.get("http://store.test").intercept({ path: "/missing", method: "GET" }).reply(404, "nope");
+
+    await assert.rejects(() => resolveBytes({ url: "http://store.test/missing" }), /HTTP 404/);
+    await agent.close();
+  });
+
+  it("rejects a url whose content-length exceeds the cap", async () => {
+    const agent = new MockAgent();
+    agent.disableNetConnect();
+    setGlobalDispatcher(agent);
+    agent.get("http://store.test")
+      .intercept({ path: "/big", method: "GET" })
+      .reply(200, "x", { headers: { "content-length": String(MAX_URL_DOWNLOAD_BYTES + 1) } });
+
+    await assert.rejects(() => resolveBytes({ url: "http://store.test/big" }), /too large/i);
+    await agent.close();
   });
 });
