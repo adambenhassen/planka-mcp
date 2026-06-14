@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.1.0] - 2026-06-14
+
+### Added
+- Image uploads for the `attachments` and `backgroundImages` tools: pass a `url` (downloaded by the server) or a small `base64` string (provide exactly one), and the server uploads the bytes to Planka as `multipart/form-data`. URLs must be `http(s)` and are capped at 10 MB; base64 is capped at ~1 MB decoded and also accepts `data:` URIs.
+- Card cover images: upload an image with `attachments` `create` (`type: 'file'`), then set it via `cards` `update` with `coverAttachmentId`.
+- Project background images: upload with `backgroundImages` `upload`, then apply via `projects` `update` (`backgroundType: 'image'`, `backgroundImageId`). Both `coverAttachmentId` and `backgroundImageId` are now documented in their tool schemas.
+
 ## [2.0.4] - 2026-03-11
 
 ### Changed

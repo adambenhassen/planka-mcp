@@ -272,6 +272,10 @@ npx @chmald/planka-mcp 2>&1 | tee debug.log
 
 Check [CHANGELOG.md](CHANGELOG.md) for full version-by-version details.
 
+### Upgrading to 2.1.0
+
+- `attachments` and `backgroundImages` now upload image bytes from a `url` (fetched server-side) or `base64`. See [Image Uploads](#image-uploads). Requires `ENABLE_OPTIONAL_TOOLS=true`.
+
 ### Upgrading to 2.0.3
 
 - The `auth` tool moved from optional tools to core tools and is now always available.
