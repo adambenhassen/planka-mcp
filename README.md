@@ -183,6 +183,52 @@ Each tool uses an `action` parameter. Example: `{ "action": "list" }` or `{ "act
 
 ---
 
+## Image Uploads
+
+The `attachments` and `backgroundImages` tools upload image bytes to Planka. Rather than sending raw bytes through the model, pass a **`url`** (downloaded by the server) or a small **`base64`** string — provide exactly one. These tools require `ENABLE_OPTIONAL_TOOLS=true`.
+
+- **`url`** (recommended): the server fetches the image and uploads it to Planka, so no image data passes through the model. Must be `http(s)`; downloads are capped at 10 MB.
+- **`base64`** (fallback): for tiny images only — capped at ~1 MB decoded. Accepts a bare base64 string or a `data:` URI.
+
+### Attach an image to a card
+
+`attachments` tool:
+
+```json
+{ "action": "create", "id": "<cardId>",
+  "data": { "type": "file", "name": "diagram.png", "url": "https://files.example.com/diagram.png" } }
+```
+
+For a plain link (no upload), use `{ "type": "link", "url": "...", "name": "..." }` instead.
+
+### Set a card's cover image (two steps)
+
+1. Upload the image with `attachments` (above) and note the returned attachment `id`.
+2. Point the card's cover at it with the `cards` tool:
+
+```json
+{ "action": "update", "id": "<cardId>", "data": { "coverAttachmentId": "<attachmentId>" } }
+```
+
+### Set a project background image (two steps)
+
+1. Upload the background with the `backgroundImages` tool and note the returned `id`:
+
+```json
+{ "action": "upload", "id": "<projectId>", "data": { "url": "https://files.example.com/bg.jpg" } }
+```
+
+2. Apply it with the `projects` tool:
+
+```json
+{ "action": "update", "id": "<projectId>",
+  "data": { "backgroundType": "image", "backgroundImageId": "<backgroundImageId>" } }
+```
+
+> Gradient backgrounds need no upload — use `projects` `update` with `{ "backgroundType": "gradient", "backgroundGradient": "<name>" }`.
+
+---
+
 ## Multi-Client Mode (SSE)
 
 For team deployments where multiple clients share one server:
