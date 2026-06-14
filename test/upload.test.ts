@@ -4,7 +4,7 @@
  */
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { optionalTools } from "../dist/tools/index.js";
+import { optionalTools, coreTools } from "../dist/tools/index.js";
 import {
   resolveBytes,
   buildUploadForm,
@@ -172,5 +172,28 @@ describe("buildUploadForm", () => {
       () => buildUploadForm("attachment", { type: "link", name: "x" }),
       /link attachment requires/i
     );
+  });
+});
+
+describe("Schema documentation for image flows", () => {
+  it("documents url/base64/type on attachments data", () => {
+    const t = optionalTools.find(t => t.name === "attachments")!;
+    const desc = t.inputSchema.properties.data.description as string;
+    assert.match(desc, /url/);
+    assert.match(desc, /base64/);
+    assert.match(desc, /file.*link|link.*file/);
+  });
+
+  it("documents url/base64 on backgroundImages data", () => {
+    const t = optionalTools.find(t => t.name === "backgroundImages")!;
+    const desc = t.inputSchema.properties.data.description as string;
+    assert.match(desc, /url/);
+    assert.match(desc, /base64/);
+  });
+
+  it("documents coverAttachmentId on cards update data", () => {
+    const t = coreTools.find(t => t.name === "cards")!;
+    const desc = t.inputSchema.properties.data.description as string;
+    assert.match(desc, /coverAttachmentId/);
   });
 });

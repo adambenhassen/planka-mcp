@@ -266,7 +266,7 @@ export const cardsTool: GroupedToolDefinition = {
         requiredFor: ["list", "get", "update", "delete"],
       },
       data: {
-        description: "Card data: { name: string, type?: 'project'|'story', listId?: string (for create/move), description?: string, dueDate?: string, isDueCompleted?: boolean, position?: number, stopwatch?: { startedAt: string, total: number } }",
+        description: "Card data: { name: string, type?: 'project'|'story', listId?: string (for create/move), description?: string, dueDate?: string, isDueCompleted?: boolean, position?: number, coverAttachmentId?: string (set the card's cover to an uploaded image attachment; null to clear), stopwatch?: { startedAt: string, total: number } }",
         requiredFor: ["create", "update"],
       },
       query: {

@@ -73,7 +73,7 @@ export const attachmentsTool: GroupedToolDefinition = {
         requiredFor: ["create", "update", "delete"],
       },
       data: {
-        description: "Attachment data: { type: 'file'|'link', name?: string, url?: string (for link) }",
+        description: "Attachment data. For an image/file: { type: 'file', name, url?: string (image fetched server-side), base64?: string (tiny fallback, <1MB) } — provide exactly one of url/base64. For a link: { type: 'link', name, url }. To show an image on the card face, set it as the card cover afterward via cards.update { coverAttachmentId: <returned attachment id> }.",
         requiredFor: ["create", "update"],
       },
     }
@@ -352,7 +352,7 @@ export const backgroundImagesTool: GroupedToolDefinition = {
         requiredFor: ["upload", "delete"],
       },
       data: {
-        description: "Image data (for upload)",
+        description: "Background image data (for upload): { url?: string (fetched server-side), base64?: string (tiny fallback, <1MB), name? } — provide exactly one of url/base64. After upload, apply it via projects.update { backgroundType: 'image', backgroundImageId: <returned id> }.",
         requiredFor: ["upload"],
       },
     }
