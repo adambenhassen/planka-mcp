@@ -47,6 +47,7 @@ export const attachmentsTool: GroupedToolDefinition = {
       method: "POST",
       path: "/cards/{cardId}/attachments",
       description: "Add an attachment to a card",
+      upload: true,
     },
     update: {
       method: "PATCH",
@@ -331,6 +332,7 @@ export const backgroundImagesTool: GroupedToolDefinition = {
       method: "POST",
       path: "/projects/{projectId}/background-images",
       description: "Upload a background image",
+      upload: true,
     },
     delete: {
       method: "DELETE",

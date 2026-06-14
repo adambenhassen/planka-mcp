@@ -15,6 +15,8 @@ export interface ToolOperation {
   requiresAuth?: boolean; // defaults to true
   /** Description of this specific operation */
   description?: string;
+  /** When true, the executor sends multipart/form-data (image upload) instead of JSON */
+  upload?: boolean;
 }
 
 /**
