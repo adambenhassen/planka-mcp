@@ -118,6 +118,8 @@ jobs:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.docker-build.outputs.digest }}
           artifact-name: sbom-${{ github.run_id }}.spdx.json
           output-file: ./sbom.spdx.json
+          # Release assets require contents:write; we publish the SBOM as a workflow artifact instead.
+          upload-release-assets: false
 
       - name: Upload SBOM artifact
         if: github.event_name != 'pull_request'
