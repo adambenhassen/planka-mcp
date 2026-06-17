@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.1.1] - 2026-06-17
+
+### Changed
+- Updated dependencies: `undici` 7 → 8, `typescript` 5 → 6, `cross-env` 7 → 10, and `@types/node` to 25.9.x. Build and full test suite pass on the new majors.
+- CI: bumped `actions/checkout` and `actions/setup-node` to v5.
+
+### Added
+- Dependabot configuration (`.github/dependabot.yml`) for weekly npm, GitHub Actions, and Docker updates.
+
 ## [2.1.0] - 2026-06-14
 
 ### Added

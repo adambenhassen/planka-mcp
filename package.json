@@ -1,6 +1,6 @@
 {
   "name": "@chmald/planka-mcp",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "MCP server for Planka - Real-Time Collaborative Kanban Board",
   "main": "dist/server.js",
   "type": "module",
@@ -44,12 +44,12 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.3",
-    "undici": "^7.19.2"
+    "undici": "^8.5.0"
   },
   "devDependencies": {
-    "@types/node": "^25.1.0",
-    "cross-env": "^7.0.3",
+    "@types/node": "^25.9.3",
+    "cross-env": "^10.1.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   }
 }

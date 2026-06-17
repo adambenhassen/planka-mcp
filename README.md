@@ -6,6 +6,17 @@
 
 An MCP server that enables AI assistants (Claude, VS Code Copilot, etc.) to interact with [Planka](https://planka.app/) - a real-time Kanban board application.
 
+## About This Fork
+
+This is a fork of [chmald/planka-mcp](https://github.com/chmald/planka-mcp) that adds:
+
+- **Image uploads** — the `attachments` and `backgroundImages` tools can upload image bytes from a `url` (fetched server-side) or a `base64` string, sent to Planka as `multipart/form-data`. See [Image Uploads](#image-uploads).
+- **Card cover images** — upload an image, then set it as a card's cover via `coverAttachmentId`.
+- **Project background images** — upload and apply a custom project background via `backgroundImageId`.
+- **Docker images on GHCR** — published to the GitHub Container Registry (`ghcr.io`) instead of Docker Hub.
+
+See [CHANGELOG.md](CHANGELOG.md) for full details.
+
 ## Quick Start
 
 ### Prerequisites
