@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.svg" alt="Planka MCP Server" width="100%">
+</p>
+
 # Planka MCP Server
 
 [![npm version](https://img.shields.io/npm/v/@chmald/planka-mcp)](https://www.npmjs.com/package/@chmald/planka-mcp)
