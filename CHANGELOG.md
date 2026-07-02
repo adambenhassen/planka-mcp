@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.2.1] - 2026-07-02
+
+### Changed
+- `cards.list` pagination cursor is now a nested `before` object (`{ id, listChangedAt }`) instead of bracket-keyed string params; bracket property names could be rejected by MCP clients that bridge to function-calling APIs with strict key patterns. The query serializer flattens one level of objects to the `before[id]=…` syntax Planka expects, which also removes the `[object Object]` failure when a nested object was passed.
+- Upload form shape is now declared per operation (`upload: 'attachment' | 'file'`) instead of inferred from the tool name, so future upload operations can't silently inherit the wrong multipart shape.
+
 ## [2.2.0] - 2026-07-02
 
 ### Fixed

@@ -85,7 +85,7 @@ export const usersTool: GroupedToolDefinition = {
       method: "POST",
       path: "/users/{id}/avatar",
       description: "Update user's avatar image",
-      upload: true,
+      upload: "file",
     },
     createApiKey: {
       method: "POST",

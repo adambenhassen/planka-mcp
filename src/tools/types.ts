@@ -15,8 +15,9 @@ export interface ToolOperation {
   requiresAuth?: boolean; // defaults to true
   /** Description of this specific operation */
   description?: string;
-  /** When true, the executor sends multipart/form-data (image upload) instead of JSON */
-  upload?: boolean;
+  /** When set, the executor sends multipart/form-data (image upload) instead of JSON.
+   * 'attachment' → type/name/url fields + optional file part; 'file' → bare file part. */
+  upload?: "attachment" | "file";
 }
 
 /**
@@ -51,7 +52,7 @@ export function buildGroupedSchema(
   params?: {
     id?: { description: string; requiredFor?: string[] };
     data?: { description: string; requiredFor?: string[] };
-    query?: Record<string, { type: string; description: string }>;
+    query?: Record<string, { type: string; description: string; properties?: Record<string, any> }>;
     extra?: Record<string, any>;
   }
 ): GroupedToolDefinition["inputSchema"] {

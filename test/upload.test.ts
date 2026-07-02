@@ -17,13 +17,13 @@ describe("Upload operation flags", () => {
   it("flags attachments.create and backgroundImages.upload as uploads", () => {
     const attachments = optionalTools.find(t => t.name === "attachments");
     const backgrounds = optionalTools.find(t => t.name === "backgroundImages");
-    assert.strictEqual(attachments?.operations.create.upload, true);
-    assert.strictEqual(backgrounds?.operations.upload.upload, true);
+    assert.strictEqual(attachments?.operations.create.upload, "attachment");
+    assert.strictEqual(backgrounds?.operations.upload.upload, "file");
   });
 
   it("flags users.updateAvatar as an upload", () => {
     const users = adminTools.find(t => t.name === "users");
-    assert.strictEqual(users?.operations.updateAvatar.upload, true);
+    assert.strictEqual(users?.operations.updateAvatar.upload, "file");
   });
 });
 
@@ -148,9 +148,9 @@ describe("resolveBytes — url", () => {
 });
 
 describe("buildUploadForm", () => {
-  it("builds a background form with a file part (no name field)", async () => {
+  it("builds a plain file form with a file part (no name field)", async () => {
     const b64 = Buffer.from("BG").toString("base64");
-    const form = await buildUploadForm("background", { base64: b64, name: "ignored" });
+    const form = await buildUploadForm("file", { base64: b64, name: "ignored" });
     const file = form.get("file") as File;
     assert.ok(file, "file part present");
     assert.strictEqual(await file.text(), "BG");

@@ -273,8 +273,14 @@ export const cardsTool: GroupedToolDefinition = {
         search: { type: "string", description: "Search term to filter cards" },
         userIds: { type: "string", description: "Comma-separated user IDs to filter by" },
         labelIds: { type: "string", description: "Comma-separated label IDs to filter by" },
-        "before[id]": { type: "string", description: "Pagination cursor: card ID from the last result (must be paired with before[listChangedAt])" },
-        "before[listChangedAt]": { type: "string", description: "Pagination cursor: listChangedAt from the last result (must be paired with before[id])" },
+        before: {
+          type: "object",
+          description: "Pagination cursor: pass BOTH id and listChangedAt from the last card of the previous page",
+          properties: {
+            id: { type: "string", description: "Card ID from the last result" },
+            listChangedAt: { type: "string", description: "listChangedAt timestamp from the last result" },
+          },
+        },
       },
     }
   ),

@@ -170,11 +170,19 @@ async function executeGroupedApiCall(
 
     const url = new URL(`${PLANKA_BASE_URL}/api${actualPath}`);
 
-    // Add query parameters
+    // Add query parameters. Plain objects flatten one level to bracket syntax
+    // (before: {id, listChangedAt} → before[id]=…&before[listChangedAt]=…),
+    // which is what Planka's qs-based query parser expects for nested params.
     if (input?.query) {
       for (const [k, v] of Object.entries(input.query)) {
         if (Array.isArray(v)) {
           v.forEach(val => url.searchParams.append(k, String(val)));
+        } else if (v !== null && typeof v === "object") {
+          for (const [sub, val] of Object.entries(v)) {
+            if (val !== undefined && val !== null) {
+              url.searchParams.set(`${k}[${sub}]`, String(val));
+            }
+          }
         } else if (v !== undefined && v !== null) {
           url.searchParams.set(k, String(v));
         }
@@ -205,8 +213,7 @@ async function executeGroupedApiCall(
         // (prebuiltBody) so a url-sourced image is fetched a single time, not
         // re-downloaded on every attempt. undici derives the boundary +
         // Content-Type from FormData, so we must NOT set Content-Type ourselves.
-        const kind = groupedDef.name === "attachments" ? "attachment" : "background";
-        body = prebuiltBody ?? (await buildUploadForm(kind, input.data));
+        body = prebuiltBody ?? (await buildUploadForm(operation.upload, input.data));
       } else {
         // JSON is rebuilt each call (cheap, no network), keeping Content-Type correct.
         headers["Content-Type"] = "application/json";
@@ -353,7 +360,7 @@ function createMcpServer() {
   const server = new McpServer(
     {
       name: "planka-mcp",
-      version: "2.2.0",
+      version: "2.2.1",
     },
     {
       capabilities: {

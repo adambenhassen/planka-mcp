@@ -124,12 +124,12 @@ async function fetchUrlBytes(url: string, name?: string): Promise<ResolvedBytes>
   return { bytes, filename, contentType };
 }
 
-export type UploadKind = "attachment" | "background";
+export type UploadKind = "attachment" | "file";
 
 /**
  * Build the multipart/form-data body Planka expects for an upload.
  * - attachment + type:'link' → `type` + `url` + `name` fields, no file part (the url is stored, not fetched).
- * - attachment + type:'file' / background → resolve bytes (fetch url or decode base64) and send a `file` part.
+ * - attachment + type:'file' / kind 'file' (backgrounds, avatars) → resolve bytes (fetch url or decode base64) and send a `file` part.
  */
 export async function buildUploadForm(kind: UploadKind, data: UploadData): Promise<FormData> {
   const form = new FormData();
