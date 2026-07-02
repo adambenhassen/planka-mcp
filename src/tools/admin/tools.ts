@@ -112,7 +112,7 @@ export const usersTool: GroupedToolDefinition = {
         requiredFor: ["update", "delete", "updateEmail", "updatePassword", "updateUsername", "updateAvatar", "createApiKey"],
       },
       data: {
-        description: "User data. For create: { email: string (required), password: string (required), name: string (required), role: 'admin'|'projectOwner'|'boardUser' (required), username?: string }. For update: { name?: string, role?: string, isDeactivated?: boolean } — email/password/username can NOT be changed via update; use updateEmail { email }, updatePassword { password }, updateUsername { username }, each plus currentPassword?: string (required when changing your own account). For updateAvatar: { url?: string (image fetched server-side), base64?: string (tiny fallback, <1MB) } — provide exactly one of url/base64.",
+        description: "User data. For create: { email: string (required), password: string (required), name: string (required), role: 'admin'|'projectOwner'|'boardUser' (required), username?: string }. For update: { name?: string, role?: string, isDeactivated?: boolean } — email/password/username can NOT be changed via update; use updateEmail { email }, updatePassword { password }, updateUsername { username }, each plus currentPassword?: string (required when changing your own account). For updateAvatar: { url: string (image fetched server-side) }.",
         requiredFor: ["create", "update", "updateEmail", "updatePassword", "updateUsername", "updateAvatar"],
       },
     }

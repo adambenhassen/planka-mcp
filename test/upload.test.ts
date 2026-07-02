@@ -8,7 +8,6 @@ import { optionalTools, coreTools, adminTools } from "../dist/tools/index.js";
 import {
   resolveBytes,
   buildUploadForm,
-  MAX_BASE64_BYTES,
   MAX_URL_DOWNLOAD_BYTES,
 } from "../dist/upload.js";
 import { MockAgent, setGlobalDispatcher, getGlobalDispatcher } from "undici";
@@ -27,44 +26,11 @@ describe("Upload operation flags", () => {
   });
 });
 
-describe("resolveBytes — base64", () => {
-  it("decodes base64 into bytes with a filename and content type", async () => {
-    const b64 = Buffer.from("hello").toString("base64");
-    const out = await resolveBytes({ base64: b64, name: "greeting.txt" });
-    assert.strictEqual(out.bytes.toString(), "hello");
-    assert.strictEqual(out.filename, "greeting.txt");
-    assert.strictEqual(out.contentType, "application/octet-stream");
-  });
-
-  it("decodes a base64 data: URI and captures its mime type", async () => {
-    const uri = "data:image/png;base64," + Buffer.from("PNG").toString("base64");
-    const out = await resolveBytes({ base64: uri });
-    assert.strictEqual(out.bytes.toString(), "PNG");
-    assert.strictEqual(out.contentType, "image/png");
-  });
-
-  it("rejects base64 larger than the cap", async () => {
-    const big = Buffer.alloc(MAX_BASE64_BYTES + 1).toString("base64");
-    await assert.rejects(() => resolveBytes({ base64: big }), /too large/i);
-  });
-
-  it("rejects a non-base64 data: URI (missing ';base64')", async () => {
-    await assert.rejects(
-      () => resolveBytes({ base64: "data:image/png,rawnotbase64" }),
-      /;base64/
-    );
-  });
-
-  it("rejects base64 that decodes to zero bytes", async () => {
-    await assert.rejects(() => resolveBytes({ base64: "@@@@" }), /0 bytes/);
-  });
-
-  it("rejects when neither url nor base64 is provided", async () => {
-    await assert.rejects(() => resolveBytes({}), /url.*base64/i);
-  });
-});
-
 describe("resolveBytes — url", () => {
+  it("rejects when no url is provided", async () => {
+    await assert.rejects(() => resolveBytes({}), /url/i);
+  });
+
   const original = getGlobalDispatcher();
   let agent: MockAgent;
 
@@ -131,26 +97,33 @@ describe("resolveBytes — url", () => {
     await assert.rejects(() => resolveBytes({ url: "http://store.test/stream" }), /too large/i);
   });
 
-  it("fetches the url when both url and base64 are provided (url wins)", async () => {
-    pool().intercept({ path: "/img.png", method: "GET" })
-      .reply(200, Buffer.from("FROMURL"), { headers: { "content-type": "image/png" } });
-
-    const out = await resolveBytes({
-      url: "http://store.test/img.png",
-      base64: Buffer.from("FROMB64").toString("base64"),
-    });
-    assert.strictEqual(out.bytes.toString(), "FROMURL");
-  });
-
   it("rejects a non-http(s) url scheme", async () => {
     await assert.rejects(() => resolveBytes({ url: "file:///etc/passwd" }), /protocol/i);
   });
 });
 
 describe("buildUploadForm", () => {
+  const original = getGlobalDispatcher();
+  let agent: MockAgent;
+
+  beforeEach(() => {
+    agent = new MockAgent();
+    agent.disableNetConnect();
+    setGlobalDispatcher(agent);
+  });
+
+  afterEach(async () => {
+    await agent.close();
+    setGlobalDispatcher(original);
+  });
+
+  const pool = () => agent.get("http://store.test");
+
   it("builds a plain file form with a file part (no name field)", async () => {
-    const b64 = Buffer.from("BG").toString("base64");
-    const form = await buildUploadForm("file", { base64: b64, name: "ignored" });
+    pool().intercept({ path: "/bg.png", method: "GET" })
+      .reply(200, Buffer.from("BG"), { headers: { "content-type": "image/png" } });
+
+    const form = await buildUploadForm("file", { url: "http://store.test/bg.png", name: "ignored" });
     const file = form.get("file") as File;
     assert.ok(file, "file part present");
     assert.strictEqual(await file.text(), "BG");
@@ -158,8 +131,10 @@ describe("buildUploadForm", () => {
   });
 
   it("builds a file attachment with type, name, and file part", async () => {
-    const b64 = Buffer.from("IMG").toString("base64");
-    const form = await buildUploadForm("attachment", { type: "file", base64: b64, name: "pic.png" });
+    pool().intercept({ path: "/img.png", method: "GET" })
+      .reply(200, Buffer.from("IMG"), { headers: { "content-type": "image/png" } });
+
+    const form = await buildUploadForm("attachment", { type: "file", url: "http://store.test/img.png", name: "pic.png" });
     assert.strictEqual(form.get("type"), "file");
     assert.strictEqual(form.get("name"), "pic.png");
     const file = form.get("file") as File;
@@ -188,19 +163,19 @@ describe("buildUploadForm", () => {
 });
 
 describe("Schema documentation for image flows", () => {
-  it("documents url/base64/type on attachments data", () => {
+  it("documents url/type on attachments data", () => {
     const t = optionalTools.find(t => t.name === "attachments")!;
     const desc = t.inputSchema.properties.data.description as string;
     assert.match(desc, /url/);
-    assert.match(desc, /base64/);
+    assert.doesNotMatch(desc, /base64/);
     assert.match(desc, /file.*link|link.*file/);
   });
 
-  it("documents url/base64 on backgroundImages data", () => {
+  it("documents url on backgroundImages data", () => {
     const t = optionalTools.find(t => t.name === "backgroundImages")!;
     const desc = t.inputSchema.properties.data.description as string;
     assert.match(desc, /url/);
-    assert.match(desc, /base64/);
+    assert.doesNotMatch(desc, /base64/);
   });
 
   it("documents coverAttachmentId on cards update data", () => {

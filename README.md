@@ -14,7 +14,7 @@ An MCP server that enables AI assistants (Claude, VS Code Copilot, etc.) to inte
 
 This is a fork of [chmald/planka-mcp](https://github.com/chmald/planka-mcp) that adds:
 
-- **Image uploads** — the `attachments` and `backgroundImages` tools can upload image bytes from a `url` (fetched server-side) or a `base64` string, sent to Planka as `multipart/form-data`. See [Image Uploads](#image-uploads).
+- **Image uploads** — the `attachments` and `backgroundImages` tools can upload image bytes from a `url` (fetched server-side), sent to Planka as `multipart/form-data`. See [Image Uploads](#image-uploads).
 - **Card cover images** — upload an image, then set it as a card's cover via `coverAttachmentId`.
 - **Project background images** — upload and apply a custom project background via `backgroundImageId`.
 - **Docker images on GHCR** — published to the GitHub Container Registry (`ghcr.io`) instead of Docker Hub.
@@ -200,10 +200,9 @@ Each tool uses an `action` parameter. Example: `{ "action": "list" }` or `{ "act
 
 ## Image Uploads
 
-The `attachments` and `backgroundImages` tools upload image bytes to Planka. Rather than sending raw bytes through the model, pass a **`url`** (downloaded by the server) or a small **`base64`** string — provide exactly one. These tools require `ENABLE_OPTIONAL_TOOLS=true`.
+The `attachments` and `backgroundImages` tools upload image bytes to Planka. Rather than sending raw bytes through the model, pass a **`url`** (downloaded by the server). These tools require `ENABLE_OPTIONAL_TOOLS=true`.
 
-- **`url`** (recommended): the server fetches the image and uploads it to Planka, so no image data passes through the model. Must be `http(s)`; downloads are capped at 10 MB.
-- **`base64`** (fallback): for tiny images only — capped at ~1 MB decoded. Accepts a bare base64 string or a `data:` URI.
+- **`url`**: the server fetches the image and uploads it to Planka, so no image data passes through the model. Must be `http(s)`; downloads are capped at 10 MB.
 
 ### Attach an image to a card
 
@@ -289,7 +288,7 @@ Check [CHANGELOG.md](CHANGELOG.md) for full version-by-version details.
 
 ### Upgrading to 2.1.0
 
-- `attachments` and `backgroundImages` now upload image bytes from a `url` (fetched server-side) or `base64`. See [Image Uploads](#image-uploads). Requires `ENABLE_OPTIONAL_TOOLS=true`.
+- `attachments` and `backgroundImages` now upload image bytes from a `url` (fetched server-side). See [Image Uploads](#image-uploads). Requires `ENABLE_OPTIONAL_TOOLS=true`.
 
 ### Upgrading to 2.0.3
 

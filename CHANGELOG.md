@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.2.2] - 2026-07-03
+
+### Removed
+- base64 image uploads. `attachments.create`, `backgroundImages.upload`, and `users.updateAvatar` no longer accept a `base64` field — pass a `url` (fetched server-side, http(s) only, capped at 10 MB). base64 payloads were LLM-emitted, expensive, and capped at ~1 MB anyway.
+
 ## [2.2.1] - 2026-07-02
 
 ### Changed
