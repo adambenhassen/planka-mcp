@@ -32,7 +32,7 @@ export const configTool: GroupedToolDefinition = {
     },
     {
       data: {
-        description: "Config data: { smtpHost?: string, smtpPort?: number, smtpUser?: string, smtpPassword?: string, smtpFrom?: string, smtpSecure?: boolean }",
+        description: "Config data: { smtpHost?: string, smtpPort?: number, smtpName?: string, smtpUser?: string, smtpPassword?: string, smtpFrom?: string, smtpSecure?: boolean, smtpTlsRejectUnauthorized?: boolean }",
         requiredFor: ["update"],
       },
     }
@@ -85,6 +85,7 @@ export const usersTool: GroupedToolDefinition = {
       method: "POST",
       path: "/users/{id}/avatar",
       description: "Update user's avatar image",
+      upload: true,
     },
     createApiKey: {
       method: "POST",
@@ -111,8 +112,8 @@ export const usersTool: GroupedToolDefinition = {
         requiredFor: ["update", "delete", "updateEmail", "updatePassword", "updateUsername", "updateAvatar", "createApiKey"],
       },
       data: {
-        description: "User data: { email?: string, password?: string, name?: string, username?: string, role?: 'admin'|'user', isDeactivated?: boolean }",
-        requiredFor: ["create", "update", "updateEmail", "updatePassword", "updateUsername"],
+        description: "User data. For create: { email: string (required), password: string (required), name: string (required), role: 'admin'|'projectOwner'|'boardUser' (required), username?: string }. For update: { name?: string, role?: string, isDeactivated?: boolean } — email/password/username can NOT be changed via update; use updateEmail { email }, updatePassword { password }, updateUsername { username }, each plus currentPassword?: string (required when changing your own account). For updateAvatar: { url?: string (image fetched server-side), base64?: string (tiny fallback, <1MB) } — provide exactly one of url/base64.",
+        requiredFor: ["create", "update", "updateEmail", "updatePassword", "updateUsername", "updateAvatar"],
       },
     }
   ),
@@ -160,7 +161,7 @@ export const webhooksTool: GroupedToolDefinition = {
         requiredFor: ["update", "delete"],
       },
       data: {
-        description: "Webhook data: { url: string, events?: string[], isActive?: boolean }",
+        description: "Webhook data: { name: string (required for create), url: string (required for create), accessToken?: string, events?: string (comma-separated, e.g. 'cardCreate,cardUpdate'), excludedEvents?: string (comma-separated) }",
         requiredFor: ["create", "update"],
       },
     }

@@ -55,7 +55,7 @@ export const authTool: GroupedToolDefinition = {
     },
     {
       data: {
-        description: "Auth data: { emailOrUsername?: string, password?: string, token?: string, code?: string }",
+        description: "Auth data: { emailOrUsername?: string + password?: string (for login), pendingToken?: string (for acceptTerms/revokePending), signature?: string (for acceptTerms), code?: string + nonce?: string (for oidcExchange) }",
         requiredFor: ["login", "acceptTerms", "oidcExchange", "revokePending"],
       },
       query: {
@@ -113,7 +113,7 @@ export const projectsTool: GroupedToolDefinition = {
         requiredFor: ["get", "update", "delete"],
       },
       data: {
-        description: "Project data: { name: string, description?: string, backgroundType?: 'gradient'|'image', backgroundGradient?: string, backgroundImageId?: string (id from backgroundImages.upload; required with backgroundType:'image'; null to clear) }",
+        description: "Project data: { name: string, type: 'private'|'shared' (required for create; create only), description?: string. Update only: backgroundType?: 'gradient'|'image', backgroundGradient?: string (one of: old-lime, ocean-dive, tzepesch-style, jungle-mesh, strawberry-dust, purple-rose, sun-scream, warm-rust, sky-change, green-eyes, blue-xchange, blood-orange, sour-peel, green-ninja, algae-green, coral-reef, steel-grey, heat-waves, velvet-lounge, purple-rain, blue-steel, blueish-curve, prism-light, green-mist, red-curtain), backgroundImageId?: string (id from backgroundImages.upload; required with backgroundType:'image'; null to clear), isFavorite?: boolean, isHidden?: boolean }",
         requiredFor: ["create", "update"],
       },
     }
@@ -162,7 +162,7 @@ export const boardsTool: GroupedToolDefinition = {
         requiredFor: ["get", "update", "delete"],
       },
       data: {
-        description: "Board data: { name: string, projectId?: string (for create), position?: number, defaultView?: 'kanban'|'grid'|'list' }",
+        description: "Board data: { name: string, position: number (required for create), projectId?: string (for create), defaultView?: 'kanban'|'grid'|'list' (update only), defaultCardType?: 'project'|'story' (update only) }",
         requiredFor: ["create", "update"],
       },
     }
@@ -211,7 +211,7 @@ export const listsTool: GroupedToolDefinition = {
         requiredFor: ["get", "update", "delete"],
       },
       data: {
-        description: "List data: { name: string, boardId?: string (for create), position?: number, type?: 'active'|'closed' }",
+        description: "List data: { name: string, type: 'active'|'closed' (required for create), position: number (required for create), boardId?: string (for create/move), color?: string|null (update only; one of: berry-red, pumpkin-orange, lagoon-blue, pink-tulip, light-mud, orange-peel, bright-moss, antique-blue, dark-granite, turquoise-sea) }",
         requiredFor: ["create", "update"],
       },
     }
@@ -266,13 +266,15 @@ export const cardsTool: GroupedToolDefinition = {
         requiredFor: ["list", "get", "update", "delete"],
       },
       data: {
-        description: "Card data: { name: string, type?: 'project'|'story', listId?: string (for create/move), description?: string, dueDate?: string, isDueCompleted?: boolean, position?: number, coverAttachmentId?: string (set the card's cover to an uploaded image attachment; null to clear), stopwatch?: { startedAt: string, total: number } }",
+        description: "Card data: { name: string, type: 'project'|'story' (required for create), listId?: string (for create/move), boardId?: string (update only: move to another board), position?: number (required when moving to a new list), description?: string, dueDate?: string, isDueCompleted?: boolean, coverAttachmentId?: string (set the card's cover to an uploaded image attachment; null to clear), stopwatch?: { startedAt: string, total: number } }",
         requiredFor: ["create", "update"],
       },
       query: {
         search: { type: "string", description: "Search term to filter cards" },
         userIds: { type: "string", description: "Comma-separated user IDs to filter by" },
         labelIds: { type: "string", description: "Comma-separated label IDs to filter by" },
+        "before[id]": { type: "string", description: "Pagination cursor: card ID from the last result (must be paired with before[listChangedAt])" },
+        "before[listChangedAt]": { type: "string", description: "Pagination cursor: listChangedAt from the last result (must be paired with before[id])" },
       },
     }
   ),
@@ -360,7 +362,7 @@ export const tasksTool: GroupedToolDefinition = {
         requiredFor: ["getList", "createList", "create", "update"],
       },
       data: {
-        description: "Data: { name: string, cardId?: string (for createList), taskListId?: string (for create), isCompleted?: boolean (for update), assigneeUserId?: string }",
+        description: "Data: { name?: string (required for createList; required for create unless linkedCardId is provided), position: number (required for createList/create), cardId?: string (for createList), taskListId?: string (for create, or on update to move the task to another list), isCompleted?: boolean, assigneeUserId?: string (update only), linkedCardId?: string (for create) }",
         requiredFor: ["createList", "create", "update"],
       },
     }

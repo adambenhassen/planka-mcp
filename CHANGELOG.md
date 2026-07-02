@@ -2,6 +2,18 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.2.0] - 2026-07-02
+
+### Fixed
+- Tool descriptions audited field-by-field against `swagger.json` and corrected across all 27 tools. Required fields the API enforces are now stated (`projects.create` `type`, `lists.create` `type`/`position`, `cards.create` `type`, `boards.create` `position`, task/task-list `position`, `users.create` `email`/`password`/`name`/`role`, `webhooks.create` `name`/`url`, custom-field `position`/`name`, `setValue` `content`), update-only fields are scoped (`defaultView`/`defaultCardType`, `isFavorite`/`isHidden`, `assigneeUserId`, list `color`), and wrong claims removed (webhook `isActive` doesn't exist; `events`/`excludedEvents` are comma-separated strings, not arrays; user role enum is `admin`/`projectOwner`/`boardUser`).
+- `users.updateAvatar` now sends `multipart/form-data` (was JSON, which Planka rejects) and accepts `url`/`base64` like other uploads.
+- Path parameters provided in `data` now take precedence over the `id` fallback, fixing `customFields.setValue`/`clearValue` and `cardMembers.remove`, which previously built URLs with the same ID in every path segment.
+- Enum values documented for list `color` and project `backgroundGradient`; card move semantics documented (`position` required with a new `listId`, `boardId` for cross-board moves).
+
+### Added
+- Pagination cursors `before[id]`/`before[listChangedAt]` on `cards.list`.
+- Test guards: swagger-required body fields must appear in tool data descriptions; `users.updateAvatar` upload flag asserted.
+
 ## [2.1.1] - 2026-06-17
 
 ### Changed

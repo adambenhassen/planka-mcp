@@ -185,6 +185,38 @@ describe("Tool Definitions", () => {
       );
     });
 
+    it("should document every swagger-required JSON body field in the tool's data description", () => {
+      const swaggerPath = resolve(process.cwd(), "swagger.json");
+      const swagger = JSON.parse(readFileSync(swaggerPath, "utf8"));
+      const normalize = (path: string) => path.replace(/\$\{(\w+)\}/g, "{$1}");
+
+      const missing: string[] = [];
+      for (const tool of allTools) {
+        const dataDesc: string = tool.inputSchema.properties.data?.description ?? "";
+        for (const [action, op] of Object.entries(tool.operations)) {
+          if (!["POST", "PUT", "PATCH"].includes(op.method)) continue;
+          const specEntry = Object.entries(swagger.paths ?? {}).find(
+            ([specPath]) => normalize(specPath) === normalize(op.path)
+          );
+          const body = (specEntry?.[1] as any)?.[op.method.toLowerCase()]?.requestBody?.content?.[
+            "application/json"
+          ]?.schema;
+          for (const field of body?.required ?? []) {
+            if (!dataDesc.includes(field)) {
+              missing.push(`${tool.name}.${action}: ${field}`);
+            }
+          }
+        }
+      }
+
+      assert.deepStrictEqual(
+        missing,
+        [],
+        `Swagger-required body fields missing from data descriptions: ${missing.join("; ")}`
+      );
+      console.log("  ✓ All swagger-required body fields appear in tool data descriptions");
+    });
+
     it("should map auth.getTerms to /terms without requiring a path id", () => {
       const authTool = allTools.find(tool => tool.name === "auth");
       assert.ok(authTool, "auth tool should exist");

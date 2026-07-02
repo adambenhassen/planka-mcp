@@ -4,7 +4,7 @@
  */
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-import { optionalTools, coreTools } from "../dist/tools/index.js";
+import { optionalTools, coreTools, adminTools } from "../dist/tools/index.js";
 import {
   resolveBytes,
   buildUploadForm,
@@ -19,6 +19,11 @@ describe("Upload operation flags", () => {
     const backgrounds = optionalTools.find(t => t.name === "backgroundImages");
     assert.strictEqual(attachments?.operations.create.upload, true);
     assert.strictEqual(backgrounds?.operations.upload.upload, true);
+  });
+
+  it("flags users.updateAvatar as an upload", () => {
+    const users = adminTools.find(t => t.name === "users");
+    assert.strictEqual(users?.operations.updateAvatar.upload, true);
   });
 });
 

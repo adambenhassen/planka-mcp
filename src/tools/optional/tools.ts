@@ -229,7 +229,7 @@ export const customFieldsTool: GroupedToolDefinition = {
         requiredFor: ["createBaseGroup", "updateBaseGroup", "deleteBaseGroup", "createBoardGroup", "createCardGroup", "getGroup", "updateGroup", "deleteGroup", "createFieldInBase", "createField", "updateField", "deleteField", "setValue", "clearValue"],
       },
       data: {
-        description: "Field/group data: { name?: string, position?: number, content?: string (for setValue), customFieldGroupId?: string, customFieldId?: string }",
+        description: "Field/group data: { name?: string (required for createBaseGroup/createFieldInBase/createField; required for createBoardGroup/createCardGroup unless baseCustomFieldGroupId is provided), position: number (required for createBoardGroup/createCardGroup/createFieldInBase/createField), content: string (required for setValue), showOnFrontOfCard?: boolean (for fields), baseCustomFieldGroupId?: string, customFieldGroupId?: string + customFieldId?: string (pass both in data for setValue/clearValue; id holds the card ID) }",
         requiredFor: ["createBaseGroup", "updateBaseGroup", "createBoardGroup", "createCardGroup", "updateGroup", "createFieldInBase", "createField", "updateField", "setValue"],
       },
     }
@@ -383,7 +383,7 @@ export const cardExtrasTool: GroupedToolDefinition = {
         requiredFor: ["duplicate"],
       },
       data: {
-        description: "Duplicate options: { position?: number }",
+        description: "Duplicate options: { position?: number, name?: string, boardId?: string, listId?: string (target for the copy) }",
       },
     }
   ),
@@ -505,7 +505,7 @@ export const taskExtrasTool: GroupedToolDefinition = {
         requiredFor: ["updateList", "deleteList", "deleteTask"],
       },
       data: {
-        description: "Task list data: { name?: string, position?: number }",
+        description: "Task list data: { name?: string, position?: number, hideCompletedTasks?: boolean, showOnFrontOfCard?: boolean }",
         requiredFor: ["updateList"],
       },
     }

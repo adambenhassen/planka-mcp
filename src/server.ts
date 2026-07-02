@@ -142,13 +142,16 @@ async function executeGroupedApiCall(
       const paramName = param.slice(1, -1); // Remove { and }
       let value: string | undefined;
       
-      // Check common parameter mappings
+      // Check common parameter mappings. An explicit data field wins over the
+      // id fallback: multi-param paths (e.g. custom-field-values, card-memberships)
+      // carry their extra IDs in data, and mapping them all to input.id builds a
+      // URL where every segment is the same ID.
       if (paramName === "id" && input.id) {
-        value = input.id;
-      } else if (input.id && ["projectId", "boardId", "listId", "cardId", "userId", "taskListId", "baseCustomFieldGroupId", "customFieldGroupId", "customFieldId"].includes(paramName)) {
         value = input.id;
       } else if (input.data?.[paramName]) {
         value = input.data[paramName];
+      } else if (input.id && ["projectId", "boardId", "listId", "cardId", "userId", "taskListId", "baseCustomFieldGroupId", "customFieldGroupId", "customFieldId"].includes(paramName)) {
+        value = input.id;
       }
       
       if (value) {
@@ -350,7 +353,7 @@ function createMcpServer() {
   const server = new McpServer(
     {
       name: "planka-mcp",
-      version: "2.1.1",
+      version: "2.2.0",
     },
     {
       capabilities: {
